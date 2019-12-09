@@ -17,6 +17,7 @@ INITIALIZER:
 STATECHART:
     Normal [DS]
     Chrono
+    GoingToEdit
     Editing
     LightOn
     LightGoingOff
@@ -64,7 +65,7 @@ TRANSITION:
     S: Chrono
     N: Normal
     E: changeMode
-    O: print "Chrono -> Normal"
+    O: g.refreshTimeDisplay()
 
 TRANSITION:
     S: Normal
@@ -85,3 +86,32 @@ TRANSITION:
     T: 0
     O: print "LightGoingOff -> Normal"
        g.unsetIndiglo()
+
+TRANSITION:
+    S: Normal
+    N: GoingToEdit
+    E: editTime
+    O: counter = 0
+       print "Normal -> GoingToEdit"
+
+TRANSITION:
+    S: GoingToEdit
+    N: GoingToEdit
+    C: counter < 3
+    T: 0.5
+    O: counter += 1
+       print "GoingToEdit -> GoingToEdit"
+
+TRANSITION:
+    S: GoingToEdit
+    N: Normal
+    E: released
+    O: print "GoingToEdit -> Normal"
+
+TRANSITION:
+    S: GoingToEdit
+    N: Editing
+    C: counter == 3
+    T: 0
+    O: g.startSelection()
+       print "GoingToEdit -> Editing"
