@@ -50,13 +50,13 @@ TRANSITION:
 TRANSITION:
     S: Normal
     N: Chrono
-    E: topLeftPressed
+    E: changeMode
     O: print "Normal -> Chrono"
 
 TRANSITION:
     S: Chrono
     N: Normal
-    E: topLeftPressed
+    E: changeMode
     O: print "Chrono -> Normal"
 
 TRANSITION:
