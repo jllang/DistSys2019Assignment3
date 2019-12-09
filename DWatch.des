@@ -10,6 +10,8 @@ INITIALIZER:
 
     root.mainloop()
 
+    counter = 0
+
     exit()
 
 STATECHART:
@@ -34,10 +36,10 @@ TRANSITION:
 TRANSITION:
     S: LightGoingOff
     N: LightGoingOff
-    C: g.counter < 2
+    C: counter < 2
     T: 1
     O: g.increaseTimeByOne()
-       g.counter += 1
+       counter += 1
 
 TRANSITION:
     S: Normal
@@ -67,12 +69,12 @@ TRANSITION:
     S: LightOn
     N: LightGoingOff
     E: lightOff
-    O: g.counter = 0
+    O: counter = 0
 
 TRANSITION:
     S: LightGoingOff
     N: Normal
-    C: g.counter == 2
+    C: counter == 2
     T: 0
     O: print "LightGoingOff -> Normal"
        g.unsetIndiglo()

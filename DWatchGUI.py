@@ -10,8 +10,6 @@ class DWatchGUI:
 
     self.handleEventOn
 
-    self.counter = 0
-
   def handleEventOn(self):
     self.eventhandler.event("on")
 
