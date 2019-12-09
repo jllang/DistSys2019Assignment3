@@ -1,5 +1,5 @@
 INITIALIZER:
-    from TkInter import *
+    from Tkinter import *
     from DWatchGUI import DWatchGUI
 
     root = Tk()
@@ -10,32 +10,26 @@ INITIALIZER:
 
     root.mainloop()
 
+    exit()
+
 STATECHART:
-    A [DS]
-    B
+    Normal [DS]
+    Chrono
+    Editing
 
 TRANSITION:
-    S: A
-    N: B
+    S: Normal
+    N: Normal
+    T: 1
+    O: g.increaseTimeByOne()
+
+TRANSITION:
+    S: Normal
+    N: Chrono
     E: on
-    O: print "A -> B"
-       g.setLightBulbOn()
+    O: print "Normal -> Chrono"
 
 TRANSITION:
-    S: B
-    N: B
-    E: on
-    O: print "B (self-loop)"
-
-TRANSITION:
-    S: B
-    N: A
-    E: off
-    O: print "B -> A"
-       g.setLightBulbOff()
-
-TRANSITION:
-    S: A
-    N: A
-    E: off
-    O: print "A (self-loop)"
+    S: Chrono
+    N: Normal
+    O: print "Chrono -> Normal"
