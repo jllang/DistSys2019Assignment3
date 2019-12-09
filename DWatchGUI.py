@@ -84,6 +84,9 @@ class DWatchGUI:
   def increaseChronoByOne(self):
     self.GUI.increaseChronoByOne()
 
+  def increaseChronoBy250(self):
+    self.GUI.increaseChronoBy250()
+
   #Select current display:
 
   def startSelection(self):

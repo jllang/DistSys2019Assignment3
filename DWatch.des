@@ -51,7 +51,14 @@ TRANSITION:
     S: Normal
     N: Chrono
     E: changeMode
-    O: print "Normal -> Chrono"
+    O: g.refreshChronoDisplay()
+
+TRANSITION:
+    S: Chrono
+    N: Chrono
+    T: 0.25
+    O: g.increaseChronoBy250()
+       g.refreshChronoDisplay()
 
 TRANSITION:
     S: Chrono

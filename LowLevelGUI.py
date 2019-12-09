@@ -350,6 +350,14 @@ class LowLevelGUI:
     self.curChrono[1]=self.curChrono[1]%100
     self.curChrono[0]=self.curChrono[0]%100
 
+  def increaseChronoBy250(self):
+    self.curChrono[2]=self.curChrono[2]+25
+    self.curChrono[1]=(self.curChrono[1]+self.curChrono[2]/100)
+    self.curChrono[0]=(self.curChrono[0]+self.curChrono[1]/100)
+
+    self.curChrono[2]=self.curChrono[2]%100
+    self.curChrono[1]=self.curChrono[1]%100
+    self.curChrono[0]=self.curChrono[0]%100
 
   def clearDisplay(self):
     if self.alarmTag != None:
