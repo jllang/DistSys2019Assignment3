@@ -10,6 +10,8 @@ class DWatchGUI:
 
     self.handleEventOn
 
+    self.counter = 0
+
   def handleEventOn(self):
     self.eventhandler.event("on")
 
@@ -106,6 +108,7 @@ class DWatchGUI:
     self.GUI.setIndiglo()
 
   def unsetIndiglo(self):
+    time.sleep(2)
     self.GUI.unsetIndiglo()
 
   def setAlarm(self):

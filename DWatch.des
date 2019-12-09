@@ -16,6 +16,8 @@ STATECHART:
     Normal [DS]
     Chrono
     Editing
+    LightOn
+    LightGoingOff
 
 TRANSITION:
     S: Normal
@@ -24,12 +26,53 @@ TRANSITION:
     O: g.increaseTimeByOne()
 
 TRANSITION:
+    S: LightOn
+    N: LightOn
+    T: 1
+    O: g.increaseTimeByOne()
+
+TRANSITION:
+    S: LightGoingOff
+    N: LightGoingOff
+    C: g.counter < 2
+    T: 1
+    O: g.increaseTimeByOne()
+       g.counter += 1
+
+TRANSITION:
+    S: Normal
+    N: Editing
+    E: bottomRightPressed
+    O: g.editTime()
+
+TRANSITION:
     S: Normal
     N: Chrono
-    E: on
+    E: topLeftPressed
     O: print "Normal -> Chrono"
 
 TRANSITION:
     S: Chrono
     N: Normal
+    E: topLeftPressed
     O: print "Chrono -> Normal"
+
+TRANSITION:
+    S: Normal
+    N: LightOn
+    E: lightOn
+    O: g.setIndiglo()
+
+TRANSITION:
+    S: LightOn
+    N: LightGoingOff
+    E: lightOff
+    O: g.counter = 0
+
+TRANSITION:
+    S: LightGoingOff
+    N: Normal
+    C: g.counter == 2
+    T: 0
+    O: print "LightGoingOff -> Normal"
+       g.unsetIndiglo()
