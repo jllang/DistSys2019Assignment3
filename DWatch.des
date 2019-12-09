@@ -24,6 +24,14 @@ STATECHART:
     EditingMonth
     EditingDay
     EditingYear
+    DisplayAlarm
+    AlarmOn
+    AlarmOff
+    Blinking
+    GoingToEditAlarm
+    EditingAlarmHours
+    EditingAlarmMinutes
+    EditingAlarmSeconds
     LightOn
     LightGoingOff
 
@@ -65,6 +73,12 @@ TRANSITION:
     N: Normal
     E: changeMode
     O: g.refreshTimeDisplay()
+
+TRANSITION:
+    S: Chrono
+    N: Chrono
+    E: resetChrono
+    O: g.resetChrono()
 
 TRANSITION:
     S: Normal
@@ -112,8 +126,9 @@ TRANSITION:
     N: EditingHours
     C: counter == 3
     T: 0
-    O: g.startSelection()
-       print "GoingToEdit -> Editing"
+    O: g.refreshTimeDisplay()
+       g.startSelection()
+       print "GoingToEdit -> EditingHours"
 
 TRANSITION:
     S: EditingHours
@@ -183,6 +198,72 @@ TRANSITION:
 
 TRANSITION:
     S: EditingYear
+    N: Normal
+    E: finishEdit
+    O: g.stopSelection()
+
+TRANSITION:
+    S: Normal
+    N: GoingToEditAlarm
+    E: setAlarm
+    O: counter = 0
+       print "Normal -> GoingToEditAlarm"
+
+TRANSITION:
+    S: GoingToEditAlarm
+    N: GoingToEditAlarm
+    C: counter < 3
+    T: 0.5
+    O: counter += 1
+       print "GoingToEditAlarm -> GoingToEditAlarm"
+
+TRANSITION:
+    S: GoingToEditAlarm
+    N: Normal
+    E: stopInc
+    O: print "GoingToEditAlarm -> Normal"
+
+TRANSITION:
+    S: GoingToEditAlarm
+    N: EditingAlarmHours
+    C: counter == 3
+    T: 0
+    O: g.refreshAlarmDisplay()
+       g.startSelection()
+       print "GoingToEditAlarm -> EditingAlarmHours"
+
+TRANSITION:
+    S: EditingAlarmHours
+    N: EditingAlarmHours
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingAlarmHours
+    N: EditingAlarmMinutes
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingAlarmMinutes
+    N: EditingAlarmMinutes
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingAlarmMinutes
+    N: EditingAlarmSeconds
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingAlarmSeconds
+    N: EditingAlarmSeconds
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingAlarmSeconds
     N: Normal
     E: finishEdit
     O: g.stopSelection()
