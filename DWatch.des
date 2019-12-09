@@ -18,7 +18,12 @@ STATECHART:
     Normal [DS]
     Chrono
     GoingToEdit
-    Editing
+    EditingHours
+    EditingMinutes
+    EditingSeconds
+    EditingMonth
+    EditingDay
+    EditingYear
     LightOn
     LightGoingOff
 
@@ -41,12 +46,6 @@ TRANSITION:
     T: 1
     O: g.increaseTimeByOne()
        counter += 1
-
-TRANSITION:
-    S: Normal
-    N: Editing
-    E: bottomRightPressed
-    O: g.editTime()
 
 TRANSITION:
     S: Normal
@@ -110,8 +109,80 @@ TRANSITION:
 
 TRANSITION:
     S: GoingToEdit
-    N: Editing
+    N: EditingHours
     C: counter == 3
     T: 0
     O: g.startSelection()
        print "GoingToEdit -> Editing"
+
+TRANSITION:
+    S: EditingHours
+    N: EditingHours
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingHours
+    N: EditingMinutes
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingMinutes
+    N: EditingMinutes
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingMinutes
+    N: EditingSeconds
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingSeconds
+    N: EditingSeconds
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingSeconds
+    N: EditingMonth
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingMonth
+    N: EditingMonth
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingMonth
+    N: EditingDay
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingDay
+    N: EditingDay
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingDay
+    N: EditingYear
+    E: finishEdit
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditingYear
+    N: EditingYear
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditingYear
+    N: Normal
+    E: finishEdit
+    O: g.stopSelection()
