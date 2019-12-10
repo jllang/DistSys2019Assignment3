@@ -28,7 +28,8 @@ STATECHART:
         EditingDay
         EditingYear
         DisplayAlarm
-        Blinking
+        BlinkOn
+        BlinkOff
         AlarmOn
         AlarmOff
         GoingToEditAlarm
@@ -38,6 +39,14 @@ STATECHART:
     B [CS][DS][ITF]
         Ticking [DS]
         NotTicking
+
+ENTER:
+    N: A.Normal
+    O: g.refreshTimeDisplay()
+
+ENTER:
+    N: A.Chrono
+    O: g.refreshChronoDisplay()
 
 TRANSITION: [1]
     S: B.Ticking
@@ -57,18 +66,10 @@ TRANSITION: [1]
     E: continueTicking
 
 TRANSITION:
-    S: A.LightGoingOff
-    N: A.LightGoingOff
-    C: counter < 2
-    T: 1
-    O: counter += 1
-
-TRANSITION:
     S: A.Normal
     N: A.Chrono
     E: changeMode
     O: print "A.Normal -> A.Chrono"
-       g.refreshChronoDisplay()
        [EVENT('stopTicking')]
 
 TRANSITION:
@@ -77,14 +78,12 @@ TRANSITION:
     T: 0.25
     O: print "A.Chrono -> A.Chrono"
        g.increaseChronoBy250()
-       g.refreshChronoDisplay()
 
 TRANSITION:
     S: A.Chrono
     N: A.Normal
     E: changeMode
-    O: g.refreshTimeDisplay()
-       [EVENT('continueTicking')]
+    O: [EVENT('continueTicking')]
 
 TRANSITION:
     S: A.Chrono
@@ -103,6 +102,13 @@ TRANSITION:
     N: A.LightGoingOff
     E: lightOff
     O: counter = 0
+
+TRANSITION: [1]
+    S: A.LightGoingOff
+    N: A.LightGoingOff
+    C: counter < 2
+    T: 1
+    O: counter += 1
 
 TRANSITION:
     S: A.LightGoingOff
@@ -138,8 +144,7 @@ TRANSITION:
     N: A.EditingHours
     C: counter == 3
     T: 0
-    O: g.refreshTimeDisplay()
-       g.startSelection()
+    O: g.startSelection()
        [EVENT('stopTicking')]
        print "GoingToEdit -> EditingHours"
 
@@ -282,34 +287,37 @@ TRANSITION:
     N: A.Normal
     E: finishEdit
     O: g.stopSelection()
+       g.setAlarm()
        [EVENT('continueTicking')]
 
 TRANSITION:
     S: A.Normal
-    N: A.Blinking
+    N: A.BlinkOn
     C: g.checkTime()
     T: 0
     O: counter = 0
 
 TRANSITION:
-    S: A.Blinking
-    N: A.Blinking
-    C: counter < 8 and counter % 2 == 0
-    T: 0.0
-    O: counter += counter
+    S: A.BlinkOn
+    N: A.BlinkOff
+    C: counter < 8
+    T: 0.5
+    O: counter += 1
        g.setIndiglo()
 
 TRANSITION:
-    S: A.Blinking
-    N: A.Blinking
-    C: counter < 8 and counter % 2 == 1
+    S: A.BlinkOff
+    N: A.BlinkOn
     T: 0.5
-    O: counter += counter
-       g.unsetIndiglo()
+    O: g.unsetIndiglo()
 
 TRANSITION:
-    S: A.Blinking
+    S: A.BlinkOn
     N: A.Normal
     C: counter == 8
+    T: 0
     O: g.setAlarm()
-       g.refreshTimeDisplay()
+#       g.refreshAlarmDisplay()
+#       g.refreshDateDisplay()
+#       g.refreshTimeDisplay()
+#       g.refreshChronoDisplay()
