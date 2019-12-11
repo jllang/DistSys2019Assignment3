@@ -28,8 +28,6 @@ STATECHART:
         EditingDay
         EditingYear
         DisplayAlarm
-        BlinkOn
-        BlinkOff
         AlarmOn
         AlarmOff
         GoingToEditAlarm
@@ -39,6 +37,10 @@ STATECHART:
     B [CS][DS][ITF]
         Ticking [DS]
         NotTicking
+    C [CS][DS][ITF]
+        NotBlinking [DS]
+        BlinkOn
+        BlinkOff
 
 ENTER:
     N: A.Normal
@@ -48,19 +50,18 @@ ENTER:
     N: A.Chrono
     O: g.refreshChronoDisplay()
 
-TRANSITION: [1]
+TRANSITION: [2]
     S: B.Ticking
     N: B.Ticking
     T: 1
     O: g.increaseTimeByOne()
 
-TRANSITION: [1]
+TRANSITION: [2]
     S: B.Ticking
     N: B.NotTicking
-    E: print "B.Ticking -> B.NotTicking"
-       stopTicking
+    E: stopTicking
 
-TRANSITION: [1]
+TRANSITION: [2]
     S: B.NotTicking
     N: B.Ticking
     E: continueTicking
@@ -69,15 +70,13 @@ TRANSITION:
     S: A.Normal
     N: A.Chrono
     E: changeMode
-    O: print "A.Normal -> A.Chrono"
-       [EVENT('stopTicking')]
+    O: [EVENT('stopTicking')]
 
 TRANSITION:
     S: A.Chrono
     N: A.Chrono
     T: 0.25
-    O: print "A.Chrono -> A.Chrono"
-       g.increaseChronoBy250()
+    O: g.increaseChronoBy250()
 
 TRANSITION:
     S: A.Chrono
@@ -97,33 +96,31 @@ TRANSITION:
     E: lightOn
     O: g.setIndiglo()
 
-TRANSITION:
+TRANSITION: [3]
     S: A.LightOn
     N: A.LightGoingOff
     E: lightOff
     O: counter = 0
 
-TRANSITION: [1]
+TRANSITION: [3]
     S: A.LightGoingOff
     N: A.LightGoingOff
     C: counter < 2
     T: 1
     O: counter += 1
 
-TRANSITION:
+TRANSITION: [3]
     S: A.LightGoingOff
     N: A.Normal
     C: counter == 2
     T: 0
-    O: print "LightGoingOff -> Normal"
-       g.unsetIndiglo()
+    O: g.unsetIndiglo()
 
 TRANSITION:
     S: A.Normal
     N: A.GoingToEdit
     E: editTime
     O: counter = 0
-       print "Normal -> GoingToEdit"
 
 TRANSITION:
     S: A.GoingToEdit
@@ -131,13 +128,11 @@ TRANSITION:
     C: counter < 3
     T: 0.5
     O: counter += 1
-       print "GoingToEdit -> GoingToEdit"
 
 TRANSITION:
     S: A.GoingToEdit
     N: A.Normal
     E: released
-    O: print "GoingToEdit -> Normal"
 
 TRANSITION:
     S: A.GoingToEdit
@@ -146,7 +141,6 @@ TRANSITION:
     T: 0
     O: g.startSelection()
        [EVENT('stopTicking')]
-       print "GoingToEdit -> EditingHours"
 
 TRANSITION:
     S: A.EditingHours
@@ -226,7 +220,6 @@ TRANSITION:
     N: A.GoingToEditAlarm
     E: setAlarm
     O: counter = 0
-       print "Normal -> GoingToEditAlarm"
 
 TRANSITION:
     S: A.GoingToEditAlarm
@@ -234,13 +227,11 @@ TRANSITION:
     C: counter < 3
     T: 0.5
     O: counter += 1
-       print "GoingToEditAlarm -> GoingToEditAlarm"
 
 TRANSITION:
     S: A.GoingToEditAlarm
     N: A.Normal
     E: stopInc
-    O: print "GoingToEditAlarm -> Normal"
 
 TRANSITION:
     S: A.GoingToEditAlarm
@@ -250,7 +241,6 @@ TRANSITION:
     O: g.refreshAlarmDisplay()
        g.startSelection()
        [EVENT('stopTicking')]
-       print "GoingToEditAlarm -> EditingAlarmHours"
 
 TRANSITION:
     S: A.EditingAlarmHours
@@ -289,35 +279,91 @@ TRANSITION:
     O: g.stopSelection()
        g.setAlarm()
        [EVENT('continueTicking')]
+       #g.refreshAlarmDisplay()
 
-TRANSITION:
-    S: A.Normal
-    N: A.BlinkOn
+TRANSITION: [1]
+    S: C.NotBlinking
+    N: C.BlinkOn
     C: g.checkTime()
     T: 0
     O: counter = 0
+       print "Alarm starting"
 
-TRANSITION:
-    S: A.BlinkOn
-    N: A.BlinkOff
+TRANSITION: [1]
+    S: C.BlinkOn
+    N: C.BlinkOff
     C: counter < 8
     T: 0.5
     O: counter += 1
        g.setIndiglo()
 
-TRANSITION:
-    S: A.BlinkOff
-    N: A.BlinkOn
-    T: 0.5
+TRANSITION: [1]
+    S: C.BlinkOff
+    N: C.BlinkOn
+    T: 0
     O: g.unsetIndiglo()
 
-TRANSITION:
-    S: A.BlinkOn
-    N: A.Normal
+TRANSITION: [1]
+    S: C.BlinkOn
+    N: C.NotBlinking
     C: counter == 8
     T: 0
-    O: g.setAlarm()
-#       g.refreshAlarmDisplay()
-#       g.refreshDateDisplay()
-#       g.refreshTimeDisplay()
-#       g.refreshChronoDisplay()
+    O: print "Alarm ending"
+       g.setAlarm()
+       #g.refreshAlarmDisplay()
+
+TRANSITION:
+    S: C.BlinkOn
+    N: C.NotBlinking
+    E: suppressAlarm
+    O: print "Alarm suppressed"
+       g.setAlarm()
+       #g.refreshAlarmDisplay()
+
+TRANSITION: [-1]
+    S: C.BlinkOn
+    N: C.BlinkOn
+    E: switchMode # Doens't work
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOff
+    N: C.BlinkOff
+    E: switchMode # Doesn't work
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOn
+    N: C.BlinkOn
+    E: lightOn    # Also turns on the light
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOff
+    N: C.BlinkOff
+    E: lightOn    # Also turns on the light
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOn
+    N: C.BlinkOn
+    E: editTime
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOff
+    N: C.BlinkOff
+    E: editTime
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOn
+    N: C.BlinkOn
+    E: setAlarm
+    O: [EVENT('suppressAlarm')]
+
+TRANSITION: [-1]
+    S: C.BlinkOff
+    N: C.BlinkOff
+    E: setAlarm
+    O: [EVENT('suppressAlarm')]
